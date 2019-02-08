@@ -21,11 +21,8 @@ public class TicketController {
 	public String store(@RequestBody User user) {
 		TheatreScreenShows tss = new TheatreScreenShows();
 		tss.setId(user.getShowId());
-		// LocalDate date1=LocalDate.parse(date);
-
-		Tickets t = new Tickets(user.getNoOfSeats(), tss, user.getDate(), "nil", 0);
-
-		String flag = ticketService.insertT(t);
+        Tickets t = new Tickets(user.getNoOfSeats(), tss, user.getDate(), "nil", 0);
+        String flag = ticketService.insertT(t);
 		return flag;
 	}
 

@@ -2,11 +2,8 @@ package com.project.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
-
 import com.project.dao.TicketDao;
 import com.project.model.Tickets;
 
@@ -69,22 +66,28 @@ public class TicketServiceImple implements TicketService {
 			flag = "The show already started you are not allowed to cancel the tickets";
 			return flag;
 		}
-		// if(lt1.minusMinutes(10);
-		if (lt.isBefore(lt1.minusMinutes(10))) {
-			String status = "cancelled";
-			int ticketcost = 0;
-			int no_of_seats = 0;
-			Tickets t = new Tickets();
-			t.setId(id);
-			t.setNoOfSeats(no_of_seats);
-			t.setStatus(status);
-			t.setTotalCost(ticketcost);
-			int i = ticketDao.cancelTicket(t);
-			if (i > 0) {
-				flag = "your tickets has been cancelled successfully";
-				return flag;
+		LocalDate ld = LocalDate.now();
+		LocalDate ld1 = ticketDao.getDate(id);
+		if (ld.equals(ld1)) {
+			if (lt.isBefore(lt1.minusMinutes(10))) {
+				String status = "cancelled";
+				int ticketcost = 0;
+				int no_of_seats = 0;
+				Tickets t = new Tickets();
+				t.setId(id);
+				t.setNoOfSeats(no_of_seats);
+				t.setStatus(status);
+				t.setTotalCost(ticketcost);
+				int i = ticketDao.cancelTicket(t);
+				if (i > 0) {
+					flag = "your tickets has been cancelled successfully";
+					return flag;
+				} else {
+					flag = "Sorry, you cannot cancel this ticket, as the show is going to start in 10 mins";
+					return flag;
+				}
 			} else {
-				flag = "Sorry, you cannot cancel this ticket";
+				flag = "The specified show is over";
 				return flag;
 			}
 		}

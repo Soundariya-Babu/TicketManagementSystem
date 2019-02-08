@@ -1,5 +1,6 @@
 package com.project.dao;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import org.apache.logging.log4j.LogManager;
@@ -65,4 +66,11 @@ public class TicketDaoImple implements TicketDao {
 		logger.info("Booking cancel");
 		return t1;
 	}
+	
+  public LocalDate getDate(int id)
+  {
+		String sql = "select date from tickets where id=?";
+		LocalDate lc = (LocalDate) jdbcTemplateObject.queryForObject(sql, new Object[] { id }, LocalDate.class);
+		return lc; 
+  }
 }
