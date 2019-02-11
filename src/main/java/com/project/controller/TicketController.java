@@ -21,7 +21,7 @@ public class TicketController {
 	@Autowired
 	private TicketService ticketService;
 
-	@PostMapping("/insert")
+	@PostMapping("/book")
 	public ResponseEntity<String> store(@RequestBody User user) {
 		TheatreScreenShows tss = new TheatreScreenShows();
 		tss.setId(user.getShowId());
