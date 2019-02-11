@@ -23,17 +23,14 @@ public class TicketController {
 
 	@PostMapping("/book")
 	public ResponseEntity<String> store(@RequestBody User user) {
-		TheatreScreenShows tss = new TheatreScreenShows();
-		tss.setId(user.getShowId());
-		Tickets t = new Tickets(user.getNoOfSeats(), tss, user.getDate(), "nil", 0);
 		try {
-			ticketService.insertT(t);
+			ticketService.insertT(user);
 		} catch (SuccessException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
 		} catch (ServiceLayerException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
 		}
-		return new ResponseEntity<>("failure", HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@PutMapping("/cancel")

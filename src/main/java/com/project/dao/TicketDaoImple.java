@@ -43,7 +43,7 @@ public class TicketDaoImple implements TicketDao {
 
 	public int selectSeats(int id, LocalDate date) {
 		String sql = "SELECT IF(SUM(no_of_seats) IS NOT NULL,SUM(no_of_seats),0) AS total_seats FROM tickets WHERE th_srn_shw_id =? AND date= ?";
-		int seats = (int) jdbcTemplateObject.queryForObject(sql, new Object[] { id,date }, Integer.class);
+		int seats = (int) jdbcTemplateObject.queryForObject(sql, new Object[] { id, date }, Integer.class);
 		return seats;
 	}
 
@@ -66,11 +66,10 @@ public class TicketDaoImple implements TicketDao {
 		logger.info("Booking cancel");
 		return t1;
 	}
-	
-  public LocalDate getDate(int id)
-  {
+
+	public LocalDate getDate(int id) {
 		String sql = "select date from tickets where id=?";
 		LocalDate lc = (LocalDate) jdbcTemplateObject.queryForObject(sql, new Object[] { id }, LocalDate.class);
-		return lc; 
-  }
+		return lc;
+	}
 }
