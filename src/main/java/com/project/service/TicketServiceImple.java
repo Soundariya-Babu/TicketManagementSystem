@@ -6,32 +6,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.project.dao.TicketDao;
 import com.project.model.Tickets;
+import com.project.service.exception.ServiceLayerException;
+import com.project.service.exception.SuccessException;
 
 @Service
 public class TicketServiceImple implements TicketService {
 	@Autowired
 	private TicketDao ticketDao;
 
-	public String insertT(Tickets t) {
+	public void insertT(Tickets t) throws ServiceLayerException, SuccessException {
 		String flag = null;
 		LocalDate lc = LocalDate.now();
 		LocalTime lt = LocalTime.now();
 		LocalTime lt1 = ticketDao.selectStartTime(t.getTheatreScreenShows().getId());
 		if (lt.isAfter(lt1)) {
 			flag = "Sorry! The specified show is already started";
-			return flag;
+			  throw new ServiceLayerException(flag); 
 		}
 
 		if (t.getNoOfSeats() > 10) {
 			flag = "You can book only 10 tickets ";
-			return flag;
+			 throw new ServiceLayerException(flag); 
 		}
 		if (!lc.equals(t.getDate())) {
 			flag = "Enter the current date";
-			return flag;
+			 throw new ServiceLayerException(flag); 
 		}
 		int seats = 0;
-		seats = ticketDao.selectSeats(t.getTheatreScreenShows().getId());
+		seats = ticketDao.selectSeats(t.getTheatreScreenShows().getId(),lc);
 		int ticketCount = ticketDao.selectTotalSeat(t.getTheatreScreenShows().getId());
 		int filling_seats = seats + t.getNoOfSeats();
 
@@ -41,9 +43,16 @@ public class TicketServiceImple implements TicketService {
 			if (ticketsAvailable < 1) {
 				flag = "Tickest not available for the selected show";
 			} else {
-				flag = "only " + ticketsAvailable + " tickets are available for the selected show";
+				if (ticketsAvailable == 1) {
+					flag = "Only one ticket is available for the selected show";
+					 throw new ServiceLayerException(flag); 
+				} else {
+					flag = "Only " + ticketsAvailable + " tickets are available for the selected show";
+					 throw new ServiceLayerException(flag); 
+				}
+
 			}
-			return flag;
+			 throw new ServiceLayerException(flag); 
 		}
 		String Status = "Confirmed";
 		int cost = ticketDao.selectCost();
@@ -55,21 +64,23 @@ public class TicketServiceImple implements TicketService {
 			int id = ticketDao.getTicketId();
 			flag = "Your booking is confirmed." + "Your ticket id is " + id + " and total ticket cost is " + totalCost;
 		}
-		return flag;
+		 throw new SuccessException(flag); 
 	}
 
-	public String cancelTicketBooked(int id, int showId) {
+	public void cancelTicketBooked(int id, int showId) throws ServiceLayerException, SuccessException {
 		String flag = "nil";
 		LocalTime lt = LocalTime.now();
-		LocalTime lt1 = ticketDao.selectStartTime(showId);
-		if (lt.isAfter(lt1)) {
-			flag = "The show already started you are not allowed to cancel the tickets";
-			return flag;
-		}
 		LocalDate ld = LocalDate.now();
 		LocalDate ld1 = ticketDao.getDate(id);
+
 		if (ld.equals(ld1)) {
-			if (lt.isBefore(lt1.minusMinutes(10))) {
+			LocalTime lt1 = ticketDao.selectStartTime(showId);
+			if (lt.isAfter(lt1)) {
+				flag = "The show already started you are not allowed to cancel the tickets";
+				 throw new ServiceLayerException(flag); 
+			}
+
+			else if (lt.isBefore(lt1.minusMinutes(10))) {
 				String status = "cancelled";
 				int ticketcost = 0;
 				int no_of_seats = 0;
@@ -81,17 +92,18 @@ public class TicketServiceImple implements TicketService {
 				int i = ticketDao.cancelTicket(t);
 				if (i > 0) {
 					flag = "your tickets has been cancelled successfully";
-					return flag;
+					throw new SuccessException(flag); 
 				} else {
 					flag = "Sorry, you cannot cancel this ticket, as the show is going to start in 10 mins";
-					return flag;
+					 throw new ServiceLayerException(flag); 
 				}
-			} else {
-				flag = "The specified show is over";
-				return flag;
 			}
+		} else {
+			flag = "The specified show is over";
+			 throw new ServiceLayerException(flag); 
 		}
-		return flag;
+
+		 throw new ServiceLayerException(flag); 
 	}
 
 }

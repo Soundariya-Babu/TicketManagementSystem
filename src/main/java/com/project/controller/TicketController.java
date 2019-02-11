@@ -1,6 +1,8 @@
 package com.project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +12,8 @@ import com.project.model.TheatreScreenShows;
 import com.project.model.Tickets;
 import com.project.model.User;
 import com.project.service.TicketService;
+import com.project.service.exception.ServiceLayerException;
+import com.project.service.exception.SuccessException;
 
 @RestController
 @RequestMapping("/ticket")
@@ -18,19 +22,30 @@ public class TicketController {
 	private TicketService ticketService;
 
 	@PostMapping("/insert")
-	public String store(@RequestBody User user) {
+	public ResponseEntity<String> store(@RequestBody User user) {
 		TheatreScreenShows tss = new TheatreScreenShows();
 		tss.setId(user.getShowId());
-        Tickets t = new Tickets(user.getNoOfSeats(), tss, user.getDate(), "nil", 0);
-        String flag = ticketService.insertT(t);
-		return flag;
+		Tickets t = new Tickets(user.getNoOfSeats(), tss, user.getDate(), "nil", 0);
+		try {
+			ticketService.insertT(t);
+		} catch (SuccessException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
+		} catch (ServiceLayerException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+		}
+		return new ResponseEntity<>("failure", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@PutMapping("/cancel")
-	public String cancelTicket(@RequestBody User user) {
-		String flag = null;
-		flag = ticketService.cancelTicketBooked(user.getId(), user.getShowId());
-		return flag;
+	public ResponseEntity<String> cancelTicket(@RequestBody User user) {
+		try {
+			ticketService.cancelTicketBooked(user.getId(), user.getShowId());
+		} catch (ServiceLayerException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+		} catch (SuccessException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
+		}
+		return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

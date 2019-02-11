@@ -41,9 +41,9 @@ public class TicketDaoImple implements TicketDao {
 		return cost;
 	}
 
-	public int selectSeats(int id) {
-		String sql = "SELECT IF(SUM(no_of_seats) IS NOT NULL,SUM(no_of_seats),0) AS total_seats FROM tickets WHERE th_srn_shw_id =?";
-		int seats = (int) jdbcTemplateObject.queryForObject(sql, new Object[] { id }, Integer.class);
+	public int selectSeats(int id, LocalDate date) {
+		String sql = "SELECT IF(SUM(no_of_seats) IS NOT NULL,SUM(no_of_seats),0) AS total_seats FROM tickets WHERE th_srn_shw_id =? AND date= ?";
+		int seats = (int) jdbcTemplateObject.queryForObject(sql, new Object[] { id,date }, Integer.class);
 		return seats;
 	}
 
